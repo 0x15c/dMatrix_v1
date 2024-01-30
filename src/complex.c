@@ -48,11 +48,11 @@ cPos getPos(dComplex s)
     else
         return Origin;
 }
-void printc(const char *printArg, dComplex c, flag isCR)
+void printc(const char *format, dComplex c, flag isCR)
 {
-    printf(printArg, c.real);
+    printf(format, c.real);
     printf(" + j");
-    printf(printArg, c.imag);
+    printf(format, c.imag);
     if (isCR)
         printf("\n");
 }
@@ -149,7 +149,7 @@ dComplex cPow(dComplex base, dComplex exp)
     /**
      * @return gives the value of base^exp, in principle argument interval
      * @note this function may give unwanted value because of the multi-value nature
-    */
+     */
     dEuler temp;
     temp.modulus = powf(complex2Euler(base).modulus, exp.real) * powf(E, -(complex2Euler(base).argument));
     temp.argument = exp.imag * log(complex2Euler(base).modulus) + exp.real * complex2Euler(base).argument;
