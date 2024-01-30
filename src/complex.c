@@ -147,7 +147,7 @@ dComplex euler2Complex(dEuler s)
 dComplex cPow(dComplex base, dComplex exp)
 {
     /**
-     * @return gives the value of base^exp, in main argument interval
+     * @return gives the value of base^exp, in principle argument interval
      * @note this function may give unwanted value because of the multi-value nature
     */
     dEuler temp;

@@ -3,7 +3,9 @@
 #include "src/complex.c"
 int main(int argc, char **argv)
 {
-    dComplex b = {2, 1};
-    dComplex c = cPow(b, b);
+    dComplex exp = {0, 2 * PI / 3};
+    dComplex base = {E, 0};
+    dComplex result = cPow(base, exp);
+    printc("%6.3f", result, true);
     return 0;
 }
