@@ -73,6 +73,29 @@ void rowExchange(Matrix M, int n, int m)
     }
     free(ind.pdata);
 }
+void rowScale(Matrix M, int n, dComplex t)
+{
+    pIndex ind = mapIndex(M);
+    for (int i = 0; i < M.col; i++)
+    {
+        ind.pdata[n][i] = cProd(ind.pdata[n][i], t);
+    }
+    free(ind.pdata);
+}
+void rowAddon(Matrix M, int m, int n, dComplex t)
+{
+    // add t*row n onto row m
+    pIndex ind = mapIndex(M);
+    for (int i = 0; i < M.col; i++)
+    {
+        ind.pdata[m][i] = cAdd(ind.pdata[m][i], cProd(ind.pdata[n][i], t));
+    }
+    free(ind.pdata);
+}
+// int pivotSearch(int)
+// {
+//     ;
+// }
 void colExchange(Matrix M, int n, int m)
 {
     pIndex ind = mapIndex(M);
@@ -159,5 +182,5 @@ void printm(Matrix target, const char *format)
 void errHandler(const char *errLog)
 {
     printf("%s\n", errLog);
-    exit(1);
+    // exit(1);
 }
