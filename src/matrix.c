@@ -20,11 +20,7 @@ Matrix mInit(int row, int col)
 {
     // set aside memory for new created matrix
     dComplex *pdata = (dComplex *)malloc(row * col * dSize);
-    return (Matrix){
-        .row = row,
-        .col = col,
-        .pdata = pdata,
-    };
+    return (Matrix){row, col, pdata};
 }
 void cSwap(dComplex *s, dComplex *t)
 {
@@ -49,11 +45,7 @@ pIndex mapIndex(Matrix M)
     {
         p[i] = M.pdata + i * M.col;
     }
-    return (pIndex){
-        M.row,
-        M.col,
-        p,
-    };
+    return (pIndex){M.row, M.col, p};
 }
 dComplex mTrace(Matrix M)
 {
@@ -70,6 +62,7 @@ dComplex mTrace(Matrix M)
         return trace;
     }
     errHandler("trace: incompatible dimensions.");
+    return (dComplex){0, 0};
 }
 void rowExchange(Matrix M, int n, int m)
 {
@@ -99,13 +92,10 @@ Matrix mAdd(Matrix s, Matrix t)
         {
             cCpy(cAdd(s.pdata[i], t.pdata[i]), &r[i]);
         }
-        return (Matrix){
-            s.row,
-            s.col,
-            r,
-        };
+        return (Matrix){s.row, s.col, r};
     }
     errHandler("mAdd: operand dimension unmatch.");
+    return (Matrix){0, 0, NULL};
 }
 Matrix mProd(Matrix s, Matrix t)
 {
@@ -125,13 +115,34 @@ Matrix mProd(Matrix s, Matrix t)
                 }
             }
         }
-        return (Matrix){
-            s.row,
-            t.col,
-            r,
-        };
+        return (Matrix){s.row, t.col, r};
     }
     errHandler("mProd: operand dimension unmatch.");
+    return (Matrix){0, 0, NULL};
+}
+void mConj(Matrix s)
+{
+    for (int i = 0; i < s.col * s.row; i++)
+    {
+        s.pdata[i] = cConj(s.pdata[i]);
+    }
+}
+Matrix mTranspose(Matrix s)
+{
+    dComplex *p = (dComplex *)malloc(dSize * s.row * s.col);
+    for (int i = 0; i < s.row; i++)
+    {
+        for (int j = 0; j < s.col; j++)
+        {
+            p[i + j * s.row] = s.pdata[j + i * s.col];
+        }
+    }
+    return (Matrix){s.col, s.row, p};
+}
+Matrix mHermitian(Matrix s)
+{
+    mConj(s);
+    return mTranspose(s);
 }
 void printm(Matrix target, const char *format)
 {
@@ -141,7 +152,6 @@ void printm(Matrix target, const char *format)
         for (j = 0; j < target.col; j++)
         {
             printc(format, target.pdata[j + i * target.col], false);
-            // printf("[%d,%d]=%f ", i, j, tMat->mat_index[j + i * tMat->col]);
         }
         printf("\n");
     }

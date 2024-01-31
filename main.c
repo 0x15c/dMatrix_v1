@@ -7,7 +7,6 @@ int main(int argc, char **argv)
     dComplex base = {E, 0};
     dComplex result = cPow(base, exp);
     printc("%6.4f", result, true);
-
     dComplex dataBlock[] = {
         {1, 1},
         {1, 2},
@@ -31,5 +30,10 @@ int main(int argc, char **argv)
     printf("\n");
     Matrix product = mProd(matrix1, matrix1);
     printm(product, "%1.1f ");
+    printf("\n");
+    mConj(product);
+    printm(product, "%1.1f ");
+    printf("\n");
+    printm(mHermitian(product), "%1.1f ");
     return 0;
 }
