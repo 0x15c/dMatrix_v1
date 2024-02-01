@@ -3,19 +3,22 @@
  */
 #include <stdlib.h>
 #include "complex.c"
+
 void errHandler(const char *errLog);
 const int dSize = sizeof(dComplex);
-typedef struct
+typedef struct Matrix
 {
     const int row, col;
     dComplex *pdata;
 } Matrix;
-typedef struct
+void printm(Matrix target, const char *format, flag RealOnly);
+typedef struct ptrIndex
 {
     const int row, col;
     dComplex **pdata;
 } pIndex;
 typedef struct Matrix rvec;
+
 Matrix mInit(int row, int col)
 {
     // set aside memory for new created matrix
@@ -66,31 +69,80 @@ dComplex mTrace(Matrix M)
 }
 void rowExchange(Matrix M, int n, int m)
 {
-    pIndex ind = mapIndex(M);
     for (int i = 0; i < M.col; i++)
     {
-        cSwap(&ind.pdata[n][i], &ind.pdata[m][i]);
+        cSwap(&M.pdata[n * M.row + i], &M.pdata[m * M.row + i]);
     }
-    free(ind.pdata);
 }
 void rowScale(Matrix M, int n, dComplex t)
 {
-    pIndex ind = mapIndex(M);
     for (int i = 0; i < M.col; i++)
     {
-        ind.pdata[n][i] = cProd(ind.pdata[n][i], t);
+        M.pdata[n * M.row + i] = cProd(M.pdata[n * M.row + i], t);
     }
-    free(ind.pdata);
 }
 void rowAddon(Matrix M, int m, int n, dComplex t)
 {
     // add t*row n onto row m
-    pIndex ind = mapIndex(M);
     for (int i = 0; i < M.col; i++)
     {
-        ind.pdata[m][i] = cAdd(ind.pdata[m][i], cProd(ind.pdata[n][i], t));
+        M.pdata[m * M.row + i] = cAdd(M.pdata[m * M.row + i], cProd(M.pdata[n * M.row + i], t));
     }
-    free(ind.pdata);
+}
+void singleRowElim(Matrix M,
+                   int m /* row to be eliminated*/,
+                   int n /*row refered*/,
+                   int p /*col refered*/)
+{
+    dComplex t;
+    t.real = -cDiv(M.pdata[m * M.row + p], M.pdata[n * M.row + p]).real;
+    t.imag = -cDiv(M.pdata[m * M.row + p], M.pdata[n * M.row + p]).imag;
+    rowAddon(M, m, n, t);
+}
+void rowElimination(Matrix M)
+{
+    pIndex ind = mapIndex(M);
+    int i, j, k;
+    i = 0;
+    for (j = i; j < M.col;)
+    {
+        // starting with current pivot position (if any)
+        for (; i < M.row; i++)
+        {
+            // row index increment
+            if (cModu(ind.pdata[i][j]) < EPS)
+            {
+                /**
+                 * if encounters zero element, search for next non-zero element and exchange recursively
+                 * this is kind of like bubble sort
+                 */
+                for (k = i + 1; k < M.row; k++)
+                {
+                    if (cModu(ind.pdata[k][j]) > EPS)
+                    {
+                        rowExchange(M, i, k);
+                        // printm(M, "%2.1f ", true);
+                        // printf("\n");
+                    }
+                }
+            }
+            if (k == M.row - 1)
+                break;
+            j++; // encounters zero column
+            break;
+            /**
+             * now it is gurenteed to have rest elements with non-zero entry in current column
+             * safe to do the single row elimination
+             */
+            for (k = i + 1; k < M.row; k++)
+            {
+                singleRowElim(M, k, i, j);
+                // printm(M, "%2.1f ", true);
+                // printf("\n");
+            }
+            j++;
+        }
+    }
 }
 // int pivotSearch(int)
 // {
@@ -167,14 +219,14 @@ Matrix mHermitian(Matrix s)
     mConj(s);
     return mTranspose(s);
 }
-void printm(Matrix target, const char *format)
+void printm(Matrix target, const char *format, flag RealOnly)
 {
     int i, j = 0;
     for (i = 0; i < target.row; i++)
     {
         for (j = 0; j < target.col; j++)
         {
-            printc(format, target.pdata[j + i * target.col], false);
+            printc(format, target.pdata[j + i * target.col], RealOnly);
         }
         printf("\n");
     }

@@ -10,7 +10,8 @@
 
 #define PI 3.141592653589793238462643383279502884L
 #define E 2.718281828459045235360287471352662498L
-typedef enum
+#define EPS 1e-6
+typedef enum posQuadrant
 {
     Quadrant_1_4,
     Quadrant_2,
@@ -19,16 +20,16 @@ typedef enum
     ImagAxis,
     Origin,
 } cPos;
-typedef enum
+typedef enum flagTruth
 {
     false = 0,
     true = 1,
 } flag;
-typedef struct
+typedef struct cartesianComplex
 {
     float real, imag;
 } dComplex;
-typedef struct
+typedef struct eulerComplex
 {
     float modulus;
     float argument;
@@ -48,13 +49,18 @@ cPos getPos(dComplex s)
     else
         return Origin;
 }
-void printc(const char *format, dComplex c, flag isCR)
+void printc(const char *format, dComplex c, flag RealOnly)
 {
-    printf(format, c.real);
-    printf(" + j");
-    printf(format, c.imag);
-    if (isCR)
-        printf("\n");
+    if (RealOnly)
+    {
+        printf(format, c.real);
+    }
+    else
+    {
+        printf(format, c.real);
+        printf(" + j");
+        printf(format, c.imag);
+    }
 }
 
 dComplex cAdd(dComplex s1, dComplex s2)
