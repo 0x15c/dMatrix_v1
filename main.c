@@ -11,11 +11,11 @@ int main(int argc, char **argv)
         {0, 0},
         {0, 0},
         {0, 0},
-        {0, 0},
+        {1, 0},
         {2, 0},
         {0, 0},
         {1, 0},
-        {0, 0},
+        {2, 0},
         {3, 0},
     };
     Matrix matrix1 = mInit(3, 3);
@@ -23,8 +23,8 @@ int main(int argc, char **argv)
     printm(matrix1, "%2.1f ", true);
     printf("\n");
     // singleRowElim(matrix1, 1, 0, 0);
-    rowElimination(matrix1);
-    printm(matrix1, "%2.1f ", true);
+    Matrix matrix2 = gaussElim(matrix1);
+    printm(matrix2, "%2.1f ", true);
     // pIndex matrix1_index = mapIndex(matrix1);
     // dComplex trace = mTrace(matrix1);
     // rowExchange(matrix1, 1, 0);

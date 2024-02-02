@@ -99,8 +99,14 @@ void singleRowElim(Matrix M,
     t.imag = -cDiv(M.pdata[m * M.row + p], M.pdata[n * M.row + p]).imag;
     rowAddon(M, m, n, t);
 }
-void rowElimination(Matrix M)
+Matrix gaussElim(Matrix M)
 {
+    dComplex *pCopy = (dComplex *)malloc(M.row * M.col * dSize);
+    for (int i = 0; i < M.row * M.col; i++)
+        cCpy(M.pdata[i], &pCopy[i]);
+    ;
+    dComplex *pTemp = M.pdata;
+    M.pdata = pCopy;
     pIndex ind = mapIndex(M);
     int i, j, k;
     i = 0;
@@ -121,8 +127,9 @@ void rowElimination(Matrix M)
                     if (cModu(ind.pdata[k][j]) > EPS)
                     {
                         rowExchange(M, i, k);
-                        // printm(M, "%2.1f ", true);
-                        // printf("\n");
+                        // debug
+                        printm(M, "%2.1f ", true);
+                        printf("\n");
                     }
                 }
             }
@@ -137,13 +144,17 @@ void rowElimination(Matrix M)
             for (k = i + 1; k < M.row; k++)
             {
                 singleRowElim(M, k, i, j);
-                // printm(M, "%2.1f ", true);
-                // printf("\n");
+                // debug
+                printm(M, "%2.1f ", true);
+                printf("\n");
             }
             j++;
         }
     }
+    M.pdata = pTemp;
+    return (Matrix){M.row, M.col, pCopy};
 }
+
 // int pivotSearch(int)
 // {
 //     ;
