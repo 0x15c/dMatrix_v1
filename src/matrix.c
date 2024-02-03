@@ -167,51 +167,43 @@ Matrix gaussElim(Matrix M)
 }
 Matrix reducedRowElim(Matrix M)
 {
-    dComplex *pCopy = (dComplex *)malloc(M.row * M.col * dSize);
-    for (int i = 0; i < M.row * M.col; i++)
-        cCpy(M.pdata[i], &pCopy[i]);
-    ;
-    dComplex *pTemp = M.pdata;
-    M.pdata = pCopy;
-    pIndex ind = mapIndex(M);
-    int i, j, k;
-    i = 0;
-    int sp = 0;
     entryIndex pivot[MAX(M.row, M.col)];
-    for (j = i; j < M.col;)
+    pIndex ind = mapIndex(M);
+    int sp = 0;
+    int rowSearched, colSearched;
+    rowSearched = colSearched = 0;
+    for (int j = colSearched; j < M.col; j++)
     {
-        for (; i < M.row; i++)
+        for (int i = rowSearched; i < M.row; i++)
         {
-            if (cModu(ind.pdata[i][j]) < EPS)
+            if (cModu(ind.pdata[i][j]) > EPS) // hit a pivot
             {
-                for (k = i + 1; k < M.row; k + 1)
-                {
-                    if (cModu(ind.pdata[k][j]) > EPS)
-                    {
-                        rowExchange(M, i, k);
-                        
-                        sp++;
-                    }
-                    break;
-                }
-            }
-            if (k == M.row - 1)
-            {
-                j++;
+                pivot[sp].row = i;
+                pivot[sp].col = j;
+                sp++;
+                rowSearched++;
+                colSearched++;
                 break;
-            }
-            else
-            {
-                for (k = i + 1; k < M.row; k++)
-                {
-                    singleRowElim(M, k, i, j);
-                }
-                j++;
             }
         }
     }
-    M.pdata = pTemp;
-    return (Matrix){M.row, M.col, pCopy};
+    // obtained pivot position indicator, then perform back elimination
+    while (sp > 0)
+    {
+        sp--;
+        for (int i = pivot[sp].row - 1; i >= 0; i--)
+        {
+            singleRowElim(M, i, pivot[sp].row, pivot[sp].col);
+        }
+        dComplex scaler = cDiv((dComplex){1, 1}, ind.pdata[pivot[sp].row][pivot[sp].col]);
+        rowScale(M, pivot[sp].row, scaler);
+        // for (int i = pivot[sp].row; i >= 0; i--)
+        // {
+
+        // }
+    }
+    free(ind.pdata);
+    return M;
 }
 void colExchange(Matrix M, int n, int m)
 {
