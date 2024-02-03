@@ -9,16 +9,23 @@ int main(int argc, char **argv)
     // printc("%6.4f", result, true);
     dComplex dataBlock[] = {
         {1, 0},
+        {4, 0},
+        {7, 0},
         {2, 0},
+        {5, 0},
+        {8, 0},
         {0, 0},
         {0, 0},
         {0, 0},
         {0, 0},
         {0, 0},
         {0, 0},
-        {1, 0},
+        {9, 0},
+        {2, 0},
+        {6, 0},
+        {3, 0},
     };
-    Matrix matrix1 = mInit(3, 3);
+    Matrix matrix1 = mInit(4, 4);
     matrix1.pdata = dataBlock;
     printm(matrix1, "%2.1f ", true);
     printf("\n");
@@ -27,6 +34,7 @@ int main(int argc, char **argv)
     printm(matrix2, "%2.1f ", true);
     Matrix matrix3 = reducedRowElim(matrix2);
     printf("\n");
+    printm(matrix3, "%2.1f ", true);
     // printm(matrix3, "%2.1f ", true);
     // pIndex matrix1_index = mapIndex(matrix1);
     // dComplex trace = mTrace(matrix1);

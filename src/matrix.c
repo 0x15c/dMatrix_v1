@@ -74,25 +74,31 @@ dComplex mTrace(Matrix M)
 }
 void rowExchange(Matrix M, int n, int m)
 {
+    pIndex ind = mapIndex(M);
     for (int i = 0; i < M.col; i++)
     {
-        cSwap(&M.pdata[n * M.row + i], &M.pdata[m * M.row + i]);
+        cSwap(&ind.pdata[n][i], &ind.pdata[m][i]);
     }
+    free(ind.pdata);
 }
 void rowScale(Matrix M, int n, dComplex t)
 {
+    pIndex ind = mapIndex(M);
     for (int i = 0; i < M.col; i++)
     {
-        M.pdata[n * M.row + i] = cProd(M.pdata[n * M.row + i], t);
+        ind.pdata[n][i] = cProd(ind.pdata[n][i], t);
     }
+    free(ind.pdata);
 }
 void rowAddon(Matrix M, int m, int n, dComplex t)
 {
     // add t*row n onto row m
+    pIndex ind = mapIndex(M);
     for (int i = 0; i < M.col; i++)
     {
-        M.pdata[m * M.row + i] = cAdd(M.pdata[m * M.row + i], cProd(M.pdata[n * M.row + i], t));
+        ind.pdata[m][i] = cAdd(ind.pdata[m][i], cProd(ind.pdata[n][i], t));
     }
+    free(ind.pdata);
 }
 void singleRowElim(Matrix M,
                    int m /* row to be eliminated*/,
@@ -100,9 +106,11 @@ void singleRowElim(Matrix M,
                    int p /*col refered*/)
 {
     dComplex t;
-    t.real = -cDiv(M.pdata[m * M.row + p], M.pdata[n * M.row + p]).real;
-    t.imag = -cDiv(M.pdata[m * M.row + p], M.pdata[n * M.row + p]).imag;
+    pIndex ind = mapIndex(M);
+    t.real = -cDiv(ind.pdata[m][p], ind.pdata[n][p]).real;
+    t.imag = -cDiv(ind.pdata[m][p], ind.pdata[n][p]).imag;
     rowAddon(M, m, n, t);
+    free(ind.pdata);
 }
 Matrix gaussElim(Matrix M)
 {
@@ -115,7 +123,7 @@ Matrix gaussElim(Matrix M)
     pIndex ind = mapIndex(M);
     int i, j, k;
     i = 0;
-    for (j = i; j < M.col;)
+    for (j = i; j < M.col && i < M.row;)
     {
         // starting with current pivot position (if any)
         for (; i < M.row; i++)
@@ -127,7 +135,7 @@ Matrix gaussElim(Matrix M)
                  * if encounters zero element, search for next non-zero element and exchange recursively
                  * this is kind of like bubble sort
                  */
-                for (k = i + 1; k < M.row; k + 1)
+                for (k = i + 1; k < M.row; k++)
                 {
                     if (cModu(ind.pdata[k][j]) > EPS)
                     {
@@ -135,8 +143,9 @@ Matrix gaussElim(Matrix M)
                         // debug
                         // printm(M, "%2.1f ", true);
                         // printf("\n");
+                        break;
                     }
-                    break;
+                    // break;
                 }
             }
             if (k == M.row - 1)
