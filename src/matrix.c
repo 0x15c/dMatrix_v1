@@ -122,7 +122,7 @@ Matrix gaussElim(Matrix M)
                  * if encounters zero element, search for next non-zero element and exchange recursively
                  * this is kind of like bubble sort
                  */
-                for (k = i + 1; k < M.row; k++)
+                for (k = i + 1; k < M.row; k + 1)
                 {
                     if (cModu(ind.pdata[k][j]) > EPS)
                     {
@@ -131,24 +131,31 @@ Matrix gaussElim(Matrix M)
                         printm(M, "%2.1f ", true);
                         printf("\n");
                     }
+                    break;
                 }
             }
             if (k == M.row - 1)
-                break;
-            j++; // encounters zero column
-            break;
-            /**
-             * now it is gurenteed to have rest elements with non-zero entry in current column
-             * safe to do the single row elimination
-             */
-            for (k = i + 1; k < M.row; k++)
             {
-                singleRowElim(M, k, i, j);
-                // debug
-                printm(M, "%2.1f ", true);
-                printf("\n");
+                j++;
+                break;
+                // encounters zero column
             }
-            j++;
+            else
+            {
+
+                /**
+                 * now it is gurenteed to have rest elements with non-zero entry in current column
+                 * safe to do the single row elimination
+                 */
+                for (k = i + 1; k < M.row; k++)
+                {
+                    singleRowElim(M, k, i, j);
+                    // debug
+                    printm(M, "%2.1f ", true);
+                    printf("\n");
+                }
+                j++;
+            }
         }
     }
     M.pdata = pTemp;
