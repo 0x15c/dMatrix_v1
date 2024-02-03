@@ -174,8 +174,9 @@ Matrix gaussElim(Matrix M)
     M.pdata = pTemp;
     return (Matrix){M.row, M.col, pCopy};
 }
-Matrix reducedRowElim(Matrix M)
+Matrix reducedRowElim(Matrix N)
 {
+    Matrix M = gaussElim(N);
     entryIndex pivot[MAX(M.row, M.col)];
     pIndex ind = mapIndex(M);
     int sp = 0;
@@ -204,7 +205,7 @@ Matrix reducedRowElim(Matrix M)
         {
             singleRowElim(M, i, pivot[sp].row, pivot[sp].col);
         }
-        dComplex scaler = cDiv((dComplex){1, 1}, ind.pdata[pivot[sp].row][pivot[sp].col]);
+        dComplex scaler = cDiv((dComplex){1, 0}, ind.pdata[pivot[sp].row][pivot[sp].col]);
         rowScale(M, pivot[sp].row, scaler);
         // for (int i = pivot[sp].row; i >= 0; i--)
         // {
@@ -296,6 +297,29 @@ void printm(Matrix target, const char *format, flag RealOnly)
         }
         printf("\n");
     }
+}
+Matrix randMatrix(int row, int col)
+{
+    dComplex *p = (dComplex *)malloc(dSize * row * col);
+    for (int i = 0; i < row * col; i++)
+    {
+        p[i].real = (rand() % 16);
+        p[i].imag = (rand() % 16);
+    }
+    return (Matrix){row, col, p};
+}
+dComplex det(Matrix M)
+{
+    Matrix N = gaussElim(M);
+    pIndex ind = mapIndex(N);
+    dComplex det = {1, 0};
+    for (int i = 0; i < N.row; i++)
+    {
+        det = cProd(det, ind.pdata[i][i]);
+    }
+    free(ind.pdata);
+    free(N.pdata);
+    return det;
 }
 void errHandler(const char *errLog)
 {
