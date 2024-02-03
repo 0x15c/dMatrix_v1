@@ -167,34 +167,51 @@ Matrix gaussElim(Matrix M)
 }
 Matrix reducedRowElim(Matrix M)
 {
-    const int n = MAX(M.col, M.row);
-    entryIndex pivot[n];
-    for (int i = 0; i < n; i++)
-    {
-        pivot[i] = (entryIndex){0, 0};
-    } // initialize the pivot indicator
+    dComplex *pCopy = (dComplex *)malloc(M.row * M.col * dSize);
+    for (int i = 0; i < M.row * M.col; i++)
+        cCpy(M.pdata[i], &pCopy[i]);
+    ;
+    dComplex *pTemp = M.pdata;
+    M.pdata = pCopy;
+    pIndex ind = mapIndex(M);
+    int i, j, k;
+    i = 0;
     int sp = 0;
-    int k = M.row -1;
-    int l = M.col -1;
-    for (int j = l; l >= 0;)
+    entryIndex pivot[MAX(M.row, M.col)];
+    for (j = i; j < M.col;)
     {
-        for (int i = k; k >= 0;)
+        for (; i < M.row; i++)
         {
-            if (cModu(M.pdata[i * M.row + j]) > EPS)
+            if (cModu(ind.pdata[i][j]) < EPS)
             {
-                pivot[sp].col = j;
-                pivot[sp].row = i;
-                sp++;
-                k--;
-                l--;
+                for (k = i + 1; k < M.row; k + 1)
+                {
+                    if (cModu(ind.pdata[k][j]) > EPS)
+                    {
+                        rowExchange(M, i, k);
+                        
+                        sp++;
+                    }
+                    break;
+                }
+            }
+            if (k == M.row - 1)
+            {
+                j++;
+                break;
             }
             else
             {
-                k--;
+                for (k = i + 1; k < M.row; k++)
+                {
+                    singleRowElim(M, k, i, j);
+                }
+                j++;
             }
         }
-        l--;
     }
+    M.pdata = pTemp;
+    return (Matrix){M.row, M.col, pCopy};
 }
 void colExchange(Matrix M, int n, int m)
 {
