@@ -3,7 +3,7 @@
  */
 #include <stdlib.h>
 #include "complex.c"
-
+#define MAX(a, b) ((a) > (b)) ? (a) : (b)
 void errHandler(const char *errLog);
 const int dSize = sizeof(dComplex);
 typedef struct Matrix
@@ -11,7 +11,13 @@ typedef struct Matrix
     const int row, col;
     dComplex *pdata;
 } Matrix;
+typedef struct entryIndex
+{
+    int row;
+    int col;
+} entryIndex;
 void printm(Matrix target, const char *format, flag RealOnly);
+Matrix mTranspose(Matrix s);
 typedef struct ptrIndex
 {
     const int row, col;
@@ -58,8 +64,7 @@ dComplex mTrace(Matrix M)
         dComplex trace = {0, 0};
         for (int i = 0; i < M.row; i++)
         {
-            trace.real += ind.pdata[i][i].real;
-            trace.imag += ind.pdata[i][i].imag;
+            trace = cAdd(trace, ind.pdata[i][i]);
         }
         free(ind.pdata);
         return trace;
@@ -128,8 +133,8 @@ Matrix gaussElim(Matrix M)
                     {
                         rowExchange(M, i, k);
                         // debug
-                        printm(M, "%2.1f ", true);
-                        printf("\n");
+                        // printm(M, "%2.1f ", true);
+                        // printf("\n");
                     }
                     break;
                 }
@@ -142,7 +147,6 @@ Matrix gaussElim(Matrix M)
             }
             else
             {
-
                 /**
                  * now it is gurenteed to have rest elements with non-zero entry in current column
                  * safe to do the single row elimination
@@ -151,8 +155,8 @@ Matrix gaussElim(Matrix M)
                 {
                     singleRowElim(M, k, i, j);
                     // debug
-                    printm(M, "%2.1f ", true);
-                    printf("\n");
+                    // printm(M, "%2.1f ", true);
+                    // printf("\n");
                 }
                 j++;
             }
@@ -161,11 +165,37 @@ Matrix gaussElim(Matrix M)
     M.pdata = pTemp;
     return (Matrix){M.row, M.col, pCopy};
 }
-
-// int pivotSearch(int)
-// {
-//     ;
-// }
+Matrix reducedRowElim(Matrix M)
+{
+    const int n = MAX(M.col, M.row);
+    entryIndex pivot[n];
+    for (int i = 0; i < n; i++)
+    {
+        pivot[i] = (entryIndex){0, 0};
+    } // initialize the pivot indicator
+    int sp = 0;
+    int k = M.row -1;
+    int l = M.col -1;
+    for (int j = l; l >= 0;)
+    {
+        for (int i = k; k >= 0;)
+        {
+            if (cModu(M.pdata[i * M.row + j]) > EPS)
+            {
+                pivot[sp].col = j;
+                pivot[sp].row = i;
+                sp++;
+                k--;
+                l--;
+            }
+            else
+            {
+                k--;
+            }
+        }
+        l--;
+    }
+}
 void colExchange(Matrix M, int n, int m)
 {
     pIndex ind = mapIndex(M);

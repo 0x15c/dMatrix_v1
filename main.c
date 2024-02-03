@@ -8,15 +8,15 @@ int main(int argc, char **argv)
     dComplex result = cPow(base, exp);
     // printc("%6.4f", result, true);
     dComplex dataBlock[] = {
+        {1, 0},
+        {2, 0},
+        {0, 0},
+        {0, 0},
+        {0, 0},
         {0, 0},
         {0, 0},
         {0, 0},
         {1, 0},
-        {2, 0},
-        {0, 0},
-        {1, 0},
-        {2, 0},
-        {3, 0},
     };
     Matrix matrix1 = mInit(3, 3);
     matrix1.pdata = dataBlock;
@@ -25,6 +25,9 @@ int main(int argc, char **argv)
     // singleRowElim(matrix1, 1, 0, 0);
     Matrix matrix2 = gaussElim(matrix1);
     printm(matrix2, "%2.1f ", true);
+    Matrix matrix3 = reducedRowElim(matrix2);
+    printf("\n");
+    // printm(matrix3, "%2.1f ", true);
     // pIndex matrix1_index = mapIndex(matrix1);
     // dComplex trace = mTrace(matrix1);
     // rowExchange(matrix1, 1, 0);
