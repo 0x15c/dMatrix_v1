@@ -3,23 +3,37 @@
  */
 #include <stdlib.h>
 #include "../inc/matrix.h"
-Matrix mTranspose(Matrix s);
-
+flag mOperationMode(Matrix M /** @return 0, real only; 1, complex*/)
+{
+    float acc = 0.0f;
+    for (int i = 0; i < M.col * M.row; i++)
+    {
+        acc += fabs(M.pdata[i].imag);
+    }
+    if (acc < EPS)
+    {
+        return 0;
+    }
+    return 1;
+}
 Matrix mInit(int row, int col)
 {
     // set aside memory for new created matrix
     dComplex *pdata = (dComplex *)malloc(row * col * dSize);
     return (Matrix){row, col, pdata};
 }
-void cSwap(dComplex *s, dComplex *t)
+void cSwap(dComplex *s, dComplex *t, const flag isComplex)
 {
     dComplex temp;
     temp.real = s->real;
-    temp.imag = s->imag;
     s->real = t->real;
-    s->imag = t->imag;
     t->real = temp.real;
-    t->imag = temp.imag;
+    if (isComplex)
+    {
+        temp.imag = s->imag;
+        s->imag = t->imag;
+        t->imag = temp.imag;
+    }
 }
 void cCpy(dComplex source, dComplex *target)
 {
@@ -52,12 +66,12 @@ dComplex mTrace(Matrix M)
     errHandler("trace: incompatible dimensions.");
     return (dComplex){0, 0};
 }
-void rowExchange(Matrix M, int n, int m)
+void rowExchange(Matrix M, int n, int m, const flag isComplex)
 {
     pIndex ind = mapIndex(M);
     for (int i = 0; i < M.col; i++)
     {
-        cSwap(&ind.pdata[n][i], &ind.pdata[m][i]);
+        cSwap(&ind.pdata[n][i], &ind.pdata[m][i], isComplex);
     }
     free(ind.pdata);
 }
@@ -94,6 +108,7 @@ void singleRowElim(Matrix M,
 }
 Matrix gaussElim(Matrix M)
 {
+    const flag isComplex = mOperationMode(M);
     dComplex *pCopy = (dComplex *)malloc(M.row * M.col * dSize);
     for (int i = 0; i < M.row * M.col; i++)
         cCpy(M.pdata[i], &pCopy[i]);
@@ -109,7 +124,7 @@ Matrix gaussElim(Matrix M)
         for (; i < M.row; i++)
         {
             // row index increment
-            if (cModu(ind.pdata[i][j]) < EPS)
+            if ((isComplex ? cModu(ind.pdata[i][j]) : ind.pdata[i][j].real) < EPS)
             {
                 /**
                  * if encounters zero element, search for next non-zero element and exchange recursively
@@ -117,9 +132,9 @@ Matrix gaussElim(Matrix M)
                  */
                 for (k = i + 1; k < M.row; k++)
                 {
-                    if (cModu(ind.pdata[k][j]) > EPS)
+                    if ((isComplex ? cModu(ind.pdata[i][j]) : ind.pdata[i][j].real) > EPS)
                     {
-                        rowExchange(M, i, k);
+                        rowExchange(M, i, k, isComplex);
                         // debug
                         // printm(M, "%2.1f ", true);
                         // printf("\n");

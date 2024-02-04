@@ -17,15 +17,16 @@ typedef struct ptrIndex
     const int row, col;
     dComplex **pdata;
 } pIndex;
+flag mOperationMode(Matrix M /** @return 0, real only; 1, complex*/);
 void printm(Matrix target, const char *format, flag RealOnly);
 Matrix mTranspose(Matrix s);
 typedef struct Matrix rvec;
 Matrix mInit(int row, int col);
-void cSwap(dComplex *s, dComplex *t);
+void cSwap(dComplex *s, dComplex *t, const flag isComplex);
 void cCpy(dComplex source, dComplex *target);
 pIndex mapIndex(Matrix M);
 dComplex mTrace(Matrix M);
-void rowExchange(Matrix M, int n, int m);
+void rowExchange(Matrix M, int n, int m, const flag isComplex);
 void rowScale(Matrix M, int n, dComplex t);
 void rowAddon(Matrix M, int m, int n, dComplex t);
 void singleRowElim(Matrix M, int m /* row to be eliminated*/, int n /*row refered*/, int p /*col refered*/);
