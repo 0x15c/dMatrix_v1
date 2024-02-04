@@ -2,28 +2,8 @@
  * @brief matrix calculation
  */
 #include <stdlib.h>
-#include "complex.c"
-#define MAX(a, b) ((a) > (b)) ? (a) : (b)
-void errHandler(const char *errLog);
-const int dSize = sizeof(dComplex);
-typedef struct Matrix
-{
-    const int row, col;
-    dComplex *pdata;
-} Matrix;
-typedef struct entryIndex
-{
-    int row;
-    int col;
-} entryIndex;
-void printm(Matrix target, const char *format, flag RealOnly);
+#include "../inc/matrix.h"
 Matrix mTranspose(Matrix s);
-typedef struct ptrIndex
-{
-    const int row, col;
-    dComplex **pdata;
-} pIndex;
-typedef struct Matrix rvec;
 
 Matrix mInit(int row, int col)
 {
