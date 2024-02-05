@@ -1,0 +1,2 @@
+/usr/bin/ar qc libdMatrix.a CMakeFiles/dMatrix.dir/dComplex.c.o CMakeFiles/dMatrix.dir/matrix.c.o
+/usr/bin/ranlib libdMatrix.a

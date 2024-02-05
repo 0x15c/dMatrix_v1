@@ -1,0 +1,20 @@
+[
+{
+  "directory": "/Users/dragon/Desktop/dMatrix_v1/build",
+  "command": "/usr/bin/clang  -I/Users/dragon/Desktop/dMatrix_v1/inc -I/Users/dragon/Desktop/dMatrix_v1/src/../inc -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk -o CMakeFiles/main.dir/main.c.o -c /Users/dragon/Desktop/dMatrix_v1/main.c",
+  "file": "/Users/dragon/Desktop/dMatrix_v1/main.c",
+  "output": "CMakeFiles/main.dir/main.c.o"
+},
+{
+  "directory": "/Users/dragon/Desktop/dMatrix_v1/build/src",
+  "command": "/usr/bin/clang  -I/Users/dragon/Desktop/dMatrix_v1/inc -I/Users/dragon/Desktop/dMatrix_v1/src/../inc -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk -o CMakeFiles/dMatrix.dir/dComplex.c.o -c /Users/dragon/Desktop/dMatrix_v1/src/dComplex.c",
+  "file": "/Users/dragon/Desktop/dMatrix_v1/src/dComplex.c",
+  "output": "src/CMakeFiles/dMatrix.dir/dComplex.c.o"
+},
+{
+  "directory": "/Users/dragon/Desktop/dMatrix_v1/build/src",
+  "command": "/usr/bin/clang  -I/Users/dragon/Desktop/dMatrix_v1/inc -I/Users/dragon/Desktop/dMatrix_v1/src/../inc -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk -o CMakeFiles/dMatrix.dir/matrix.c.o -c /Users/dragon/Desktop/dMatrix_v1/src/matrix.c",
+  "file": "/Users/dragon/Desktop/dMatrix_v1/src/matrix.c",
+  "output": "src/CMakeFiles/dMatrix.dir/matrix.c.o"
+}
+]

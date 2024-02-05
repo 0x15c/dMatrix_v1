@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <math.h>
 #include "./inc/matrix.h"
-#include "./src/matrix.c"
 int main(int argc, char **argv)
 {
     Matrix M = randMatrix(4, 4);
