@@ -5,3 +5,4 @@ add_library(dMatrix STATIC dComplex.c matrix.c)
 
 # Include the headers from the inc directory
 target_include_directories(dMatrix PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../inc)
+target_link_libraries(dMatrix m)
