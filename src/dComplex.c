@@ -114,6 +114,7 @@ dEuler complex2Euler(dComplex s)
     case Origin:
         return (dEuler){0, 0};
     }
+    return (dEuler){0, 0};
 }
 dComplex euler2Complex(dEuler s)
 {
