@@ -2,7 +2,7 @@
  * @brief matrix calculation
  */
 #include <stdlib.h>
-#include "../inc/matrix.h"
+#include "matrix.h"
 flag mOperationMode(Matrix M /** @return 0, real only; 1, complex*/)
 {
     float acc = 0.0f;
@@ -19,7 +19,7 @@ flag mOperationMode(Matrix M /** @return 0, real only; 1, complex*/)
 Matrix mInit(int row, int col)
 {
     // set aside memory for new created matrix
-    dComplex *pdata = (dComplex *)malloc(row * col * dSize);
+    dComplex *pdata = (dComplex *)malloc(row * col * dComplexSize);
     return (Matrix){row, col, pdata};
 }
 void cSwap(dComplex *s, dComplex *t, const flag isComplex)
@@ -75,41 +75,46 @@ void rowExchange(Matrix M, int n, int m, const flag isComplex)
     }
     free(ind.pdata);
 }
-void rowScale(Matrix M, int n, dComplex t)
+void rowScale(Matrix M, int n, dComplex t, const flag isComplex)
 {
     pIndex ind = mapIndex(M);
     for (int i = 0; i < M.col; i++)
     {
-        ind.pdata[n][i] = cProd(ind.pdata[n][i], t);
+        ind.pdata[n][i] = isComplex ? cProd(ind.pdata[n][i], t)
+                                    : (dComplex){t.real * ind.pdata[n][i].real, 0};
     }
     free(ind.pdata);
 }
-void rowAddon(Matrix M, int m, int n, dComplex t)
+void rowAddon(Matrix M, int m, int n, dComplex t, const flag isComplex)
 {
     // add t*row n onto row m
     pIndex ind = mapIndex(M);
     for (int i = 0; i < M.col; i++)
     {
-        ind.pdata[m][i] = cAdd(ind.pdata[m][i], cProd(ind.pdata[n][i], t));
+        ind.pdata[m][i] = isComplex ? cAdd(ind.pdata[m][i],
+                                           cProd(ind.pdata[n][i], t))
+                                    : cAdd(ind.pdata[m][i],
+                                           (dComplex){ind.pdata[n][i].real * t.real, 0});
     }
     free(ind.pdata);
 }
 void singleRowElim(Matrix M,
                    int m /* row to be eliminated*/,
                    int n /*row refered*/,
-                   int p /*col refered*/)
+                   int p /*col refered*/,
+                   const flag isComplex)
 {
     dComplex t;
     pIndex ind = mapIndex(M);
     t.real = -cDiv(ind.pdata[m][p], ind.pdata[n][p]).real;
     t.imag = -cDiv(ind.pdata[m][p], ind.pdata[n][p]).imag;
-    rowAddon(M, m, n, t);
+    rowAddon(M, m, n, t, isComplex);
     free(ind.pdata);
 }
 Matrix gaussElim(Matrix M)
 {
     const flag isComplex = mOperationMode(M);
-    dComplex *pCopy = (dComplex *)malloc(M.row * M.col * dSize);
+    dComplex *pCopy = (dComplex *)malloc(M.row * M.col * dComplexSize);
     for (int i = 0; i < M.row * M.col; i++)
         cCpy(M.pdata[i], &pCopy[i]);
     ;
@@ -124,19 +129,18 @@ Matrix gaussElim(Matrix M)
         for (; i < M.row; i++)
         {
             // row index increment
-            if ((isComplex ? cModu(ind.pdata[i][j]) : ind.pdata[i][j].real) < EPS)
+            if ((isComplex ? cModu(ind.pdata[i][j]) : fabs(ind.pdata[i][j].real)) < EPS)
             {
                 /**
                  * if encounters zero element, search for next non-zero element and exchange recursively
-                 * this is kind of like bubble sort
                  */
                 for (k = i + 1; k < M.row; k++)
                 {
-                    if ((isComplex ? cModu(ind.pdata[i][j]) : ind.pdata[i][j].real) > EPS)
+                    if ((isComplex ? cModu(ind.pdata[k][j]) : fabs(ind.pdata[k][j].real)) > EPS)
                     {
                         rowExchange(M, i, k, isComplex);
                         // debug
-                        // printm(M, "%2.1f ", true);
+                        // printm(M, "%2.1f ");
                         // printf("\n");
                         break;
                     }
@@ -157,9 +161,9 @@ Matrix gaussElim(Matrix M)
                  */
                 for (k = i + 1; k < M.row; k++)
                 {
-                    singleRowElim(M, k, i, j);
+                    singleRowElim(M, k, i, j, isComplex);
                     // debug
-                    // printm(M, "%2.1f ", true);
+                    // printm(M, "%2.1f ");
                     // printf("\n");
                 }
                 j++;
@@ -171,6 +175,7 @@ Matrix gaussElim(Matrix M)
 }
 Matrix reducedRowElim(Matrix N)
 {
+    const flag isComplex = mOperationMode(N);
     Matrix M = gaussElim(N);
     entryIndex pivot[MAX(M.row, M.col)];
     pIndex ind = mapIndex(M);
@@ -198,10 +203,11 @@ Matrix reducedRowElim(Matrix N)
         sp--;
         for (int i = pivot[sp].row - 1; i >= 0; i--)
         {
-            singleRowElim(M, i, pivot[sp].row, pivot[sp].col);
+            singleRowElim(M, i, pivot[sp].row, pivot[sp].col, isComplex);
         }
-        dComplex scaler = cDiv((dComplex){1, 0}, ind.pdata[pivot[sp].row][pivot[sp].col]);
-        rowScale(M, pivot[sp].row, scaler);
+        dComplex scaler = isComplex ? cDiv((dComplex){1, 0}, ind.pdata[pivot[sp].row][pivot[sp].col])
+                                    : (dComplex){1 / ind.pdata[pivot[sp].row][pivot[sp].col].real, 0};
+        rowScale(M, pivot[sp].row, scaler, isComplex);
         // for (int i = pivot[sp].row; i >= 0; i--)
         // {
 
@@ -210,20 +216,20 @@ Matrix reducedRowElim(Matrix N)
     free(ind.pdata);
     return M;
 }
-void colExchange(Matrix M, int n, int m)
-{
-    pIndex ind = mapIndex(M);
-    for (int i = 0; i < M.col; i++)
-    {
-        cSwap(&ind.pdata[i][n], &ind.pdata[i][m]);
-    }
-    free(ind.pdata);
-}
+// void colExchange(Matrix M, int n, int m)
+// {
+//     pIndex ind = mapIndex(M);
+//     for (int i = 0; i < M.col; i++)
+//     {
+//         cSwap(&ind.pdata[i][n], &ind.pdata[i][m]);
+//     }
+//     free(ind.pdata);
+// }
 Matrix mAdd(Matrix s, Matrix t)
 {
     if (s.row == t.row && s.col == t.col)
     {
-        dComplex *r = (dComplex *)malloc(dSize * s.row * t.col);
+        dComplex *r = (dComplex *)malloc(dComplexSize * s.row * t.col);
 
         for (int i = 0; i < s.col * s.row; i++)
         {
@@ -236,9 +242,10 @@ Matrix mAdd(Matrix s, Matrix t)
 }
 Matrix mProd(Matrix s, Matrix t)
 {
+    flag isComplex = mOperationMode(s);
     if (s.col == t.row)
     {
-        dComplex *r = (dComplex *)malloc(dSize * s.row * t.col);
+        dComplex *r = (dComplex *)malloc(dComplexSize * s.row * t.col);
         for (int i = 0; i < s.row; i++)
         {
             for (int j = 0; j < t.col; j++)
@@ -247,8 +254,11 @@ Matrix mProd(Matrix s, Matrix t)
                 for (int k = 0; k < s.col; k++)
                 {
                     r[i * s.row + j] = cAdd(r[i * s.row + j],
-                                            cProd(s.pdata[i * s.row + k],
-                                                  t.pdata[k * t.col + j]));
+                                            isComplex ? cProd(s.pdata[i * s.row + k],
+                                                              t.pdata[k * t.col + j])
+                                                      : (dComplex){
+                                                            s.pdata[i * s.row + k].real * t.pdata[k * t.col + j].real,
+                                                            0});
                 }
             }
         }
@@ -266,7 +276,7 @@ void mConj(Matrix s)
 }
 Matrix mTranspose(Matrix s)
 {
-    dComplex *p = (dComplex *)malloc(dSize * s.row * s.col);
+    dComplex *p = (dComplex *)malloc(dComplexSize * s.row * s.col);
     for (int i = 0; i < s.row; i++)
     {
         for (int j = 0; j < s.col; j++)
@@ -281,21 +291,22 @@ Matrix mHermitian(Matrix s)
     mConj(s);
     return mTranspose(s);
 }
-void printm(Matrix target, const char *format, flag RealOnly)
+void printm(Matrix target, const char *format)
 {
     int i, j = 0;
+    flag realOnly = !mOperationMode(target);
     for (i = 0; i < target.row; i++)
     {
         for (j = 0; j < target.col; j++)
         {
-            printc(format, target.pdata[j + i * target.col], RealOnly);
+            printc(format, target.pdata[j + i * target.col], realOnly);
         }
         printf("\n");
     }
 }
 Matrix randMatrix(int row, int col)
 {
-    dComplex *p = (dComplex *)malloc(dSize * row * col);
+    dComplex *p = (dComplex *)malloc(dComplexSize * row * col);
     for (int i = 0; i < row * col; i++)
     {
         p[i].real = (rand() % 16);

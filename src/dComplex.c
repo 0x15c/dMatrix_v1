@@ -4,36 +4,8 @@
  *
  *
  */
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
 
-#define PI 3.141592653589793238462643383279502884L
-#define E 2.718281828459045235360287471352662498L
-#define EPS 1e-6
-typedef enum posQuadrant
-{
-    Quadrant_1_4,
-    Quadrant_2,
-    Quadrant_3,
-    RealAxis,
-    ImagAxis,
-    Origin,
-} cPos;
-typedef enum flagTruth
-{
-    false = 0,
-    true = 1,
-} flag;
-typedef struct cartesianComplex
-{
-    float real, imag;
-} dComplex;
-typedef struct eulerComplex
-{
-    float modulus;
-    float argument;
-} dEuler;
+#include "dComplex.h"
 cPos getPos(dComplex s)
 {
     if (s.real > 0 && s.imag != 0)
