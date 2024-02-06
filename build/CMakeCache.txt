@@ -221,6 +221,9 @@ dMatrix-v1_IS_TOP_LEVEL:STATIC=ON
 //Value Computed by CMake
 dMatrix-v1_SOURCE_DIR:STATIC=/Users/dragon/Desktop/dMatrix_v1
 
+//Dependencies for the target
+dMatrix_LIB_DEPENDS:STATIC=general;m;
+
 
 ########################
 # INTERNAL cache entries

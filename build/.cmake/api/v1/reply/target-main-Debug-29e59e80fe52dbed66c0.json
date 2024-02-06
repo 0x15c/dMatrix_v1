@@ -16,7 +16,8 @@
 		],
 		"files" : 
 		[
-			"CMakeLists.txt"
+			"CMakeLists.txt",
+			"src/CMakeLists.txt"
 		],
 		"nodes" : 
 		[
@@ -34,6 +35,15 @@
 				"file" : 0,
 				"line" : 16,
 				"parent" : 0
+			},
+			{
+				"file" : 1
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 8,
+				"parent" : 3
 			},
 			{
 				"command" : 2,
@@ -55,7 +65,7 @@
 			"includes" : 
 			[
 				{
-					"backtrace" : 3,
+					"backtrace" : 5,
 					"path" : "/Users/dragon/Desktop/dMatrix_v1/inc"
 				},
 				{
@@ -93,6 +103,11 @@
 			{
 				"backtrace" : 2,
 				"fragment" : "src/libdMatrix.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 4,
+				"fragment" : "-lm",
 				"role" : "libraries"
 			}
 		],

@@ -1168,6 +1168,18 @@
 			],
 			"type" : "STATIC",
 			"value" : "/Users/dragon/Desktop/dMatrix_v1"
+		},
+		{
+			"name" : "dMatrix_LIB_DEPENDS",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Dependencies for the target"
+				}
+			],
+			"type" : "STATIC",
+			"value" : "general;m;"
 		}
 	],
 	"kind" : "cache",
