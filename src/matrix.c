@@ -4,7 +4,10 @@
 #include <stdlib.h>
 #include "matrix.h"
 flag mOperationMode(Matrix M /** @return 0, real only; 1, complex*/)
-{
+{/**
+ * @brief specifies the operation mode: real or imaginary by acconting the imag part of a matrix
+ * 
+ */
     float acc = 0.0f;
     for (int i = 0; i < M.col * M.row; i++)
     {
@@ -42,6 +45,10 @@ void cCpy(dComplex source, dComplex *target)
 }
 pIndex mapIndex(Matrix M)
 {
+    /**
+     * @brief remap index of a matrix: using pointer array
+     * 
+     */
     dComplex **p = (dComplex **)malloc(M.row * sizeof(dComplex *)); // using dynamic memory allocation
     // dComplex *p[M.row];
     for (int i = 0; i < M.row; ++i)
@@ -113,6 +120,11 @@ void singleRowElim(Matrix M,
 }
 Matrix gaussElim(Matrix M)
 {
+    /**
+     * @brief Execuating Gauss Elimination for a matrix,
+     * first find a pivot, then eliminate rows under pivot position
+     * if a pivot is not found in a row, then exchange rows
+     */
     const flag isComplex = mOperationMode(M);
     dComplex *pCopy = (dComplex *)malloc(M.row * M.col * dComplexSize);
     for (int i = 0; i < M.row * M.col; i++)
@@ -175,6 +187,10 @@ Matrix gaussElim(Matrix M)
 }
 Matrix reducedRowElim(Matrix N)
 {
+    /**
+     * @brief after Gauss Elimination, doing back elimination
+     * 
+     */
     const flag isComplex = mOperationMode(N);
     Matrix M = gaussElim(N);
     entryIndex pivot[MAX(M.row, M.col)];
