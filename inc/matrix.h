@@ -21,6 +21,7 @@ typedef struct ptrIndex
     const int row, col;
     dComplex **pdata;
 } pIndex;
+int mRank(Matrix N);
 flag mOperationMode(Matrix M /** @return 0, real only; 1, complex*/);
 Matrix mTranspose(Matrix s);
 typedef struct Matrix rvec;
@@ -45,4 +46,8 @@ void printm(Matrix target, const char *format);
 Matrix randMatrix(int row, int col);
 dComplex det(Matrix M);
 void errHandler(const char *errLog);
+Matrix mZeros(int row, int col);
+Matrix mSetVal(int row, int col, dComplex val);
+Matrix mIdentity(int dim);
+void printm_pretty(Matrix M);
 #endif

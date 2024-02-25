@@ -4,10 +4,10 @@
 #include <stdlib.h>
 #include "matrix.h"
 flag mOperationMode(Matrix M /** @return 0, real only; 1, complex*/)
-{/**
- * @brief specifies the operation mode: real or imaginary by acconting the imag part of a matrix
- * 
- */
+{ /**
+   * @brief specifies the operation mode: real or imaginary by acconting the imag part of a matrix
+   *
+   */
     float acc = 0.0f;
     for (int i = 0; i < M.col * M.row; i++)
     {
@@ -47,7 +47,7 @@ pIndex mapIndex(Matrix M)
 {
     /**
      * @brief remap index of a matrix: using pointer array
-     * 
+     *
      */
     dComplex **p = (dComplex **)malloc(M.row * sizeof(dComplex *)); // using dynamic memory allocation
     // dComplex *p[M.row];
@@ -189,7 +189,7 @@ Matrix reducedRowElim(Matrix N)
 {
     /**
      * @brief after Gauss Elimination, doing back elimination
-     * 
+     *
      */
     const flag isComplex = mOperationMode(N);
     Matrix M = gaussElim(N);
@@ -231,6 +231,34 @@ Matrix reducedRowElim(Matrix N)
     }
     free(ind.pdata);
     return M;
+}
+int mRank(Matrix N)
+{
+    const flag isComplex = mOperationMode(N);
+    Matrix M = gaussElim(N);
+    // entryIndex pivot[MAX(M.row, M.col)];
+    pIndex ind = mapIndex(M);
+    int sp = 0;
+    int rowSearched, colSearched;
+    rowSearched = colSearched = 0;
+    for (int j = colSearched; j < M.col; j++)
+    {
+        for (int i = rowSearched; i < M.row; i++)
+        {
+            if (cModu(ind.pdata[i][j]) > EPS) // hit a pivot
+            {
+                // pivot[sp].row = i;
+                // pivot[sp].col = j;
+                sp++;
+                rowSearched++;
+                colSearched++;
+                break;
+            }
+        }
+    }
+    free(ind.pdata);
+    free(M.pdata);
+    return sp;
 }
 // void colExchange(Matrix M, int n, int m)
 // {
@@ -330,6 +358,38 @@ Matrix randMatrix(int row, int col)
     }
     return (Matrix){row, col, p};
 }
+Matrix mZeros(int row, int col)
+{
+    float *p = (float *)malloc(dComplexSize * row * col);
+    for (int i = 0; i < dComplexSize * row * col; i++)
+    {
+        p[i] = 0.0f;
+    }
+    return (Matrix){row, col, (dComplex *)p};
+}
+Matrix mSetVal(int row, int col, dComplex val)
+{
+    dComplex *p = (dComplex *)malloc(dComplexSize * row * col);
+    Matrix M = (Matrix){row, col, p};
+    for (int i = 0; i < row * col; i++)
+    {
+        M.pdata->real = val.real;
+        M.pdata->imag = val.imag;
+    }
+    return M;
+}
+Matrix mIdentity(int dim)
+{
+    dComplex *p = (dComplex *)malloc(dComplexSize * dim * dim);
+    Matrix M = mZeros(dim, dim);
+    pIndex ind = mapIndex(M);
+    for (int i = 0; i < dim; i++)
+    {
+        ind.pdata[i][i].real = 1.0f;
+    }
+    free(ind.pdata);
+    return M;
+}
 dComplex det(Matrix M)
 {
     Matrix N = gaussElim(M);
@@ -347,4 +407,16 @@ void errHandler(const char *errLog)
 {
     printf("%s\n", errLog);
     // exit(1);
+}
+void printm_pretty(Matrix M)
+{
+    for (int i = 0; i < M.col; i++)
+    {
+        for (int j = 0; j < M.row; j++)
+        {
+            printf("%+2.2f", M.pdata[i * M.col + j].real);
+            printf("%+2.2fj ", M.pdata[i * M.col + j].imag);
+        }
+        printf("\n");
+    }
 }
